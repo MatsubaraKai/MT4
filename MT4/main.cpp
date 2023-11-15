@@ -672,32 +672,32 @@ Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to) {
 	return result;
 }
 
-//Quaternion GetInstance(Quaternion instance)
-//{
-//	static Quaternion instance;
-//	return instance;
-//}
-//Vector3Calc GetInstance(Vector3 instance) {
-//	static Vector3Calc instance;
-//	return instance;
-//}
-//Quaternion Multiply(const Quaternion& lhs, const Quaternion& rhs)
-//{
-//
-//	Quaternion result = {};
-//	Vector3Calc*v3Calc = Vector3Calc::GetInstance();
-//
-//	Vector3 q = { lhs.x, lhs.y, lhs.z, };
-//	Vector3 r = { rhs.x, rhs.y, rhs.z, };
-//	Vector3 resultVector = v3Calc->Add(v3Calc->Cross(q, r), v3Calc->Add(v3Calc->Multiply(rhs.w, q), v3Calc->Multiply(lhs.w, r)));
-//
-//	result.x = resultVector.x;
-//	result.y = resultVector.y;
-//	result.z = resultVector.z;
-//	result.w = lhs.w * rhs.w - v3Calc->Dot(q, r);
-//
-//	return result;
-//}
+Vector3 Add(const Vector3& v1, const Vector3& v2) {
+
+	Vector3 result;
+
+	result = { v1.x + v2.x, v1.y + v2.y, v1.z + v2.z };
+
+	return result;
+
+}
+
+Quaternion Multiply(const Quaternion& lhs, const Quaternion& rhs)
+{
+
+	Quaternion result = {};
+
+	Vector3 q = { lhs.x, lhs.y, lhs.z, };
+	Vector3 r = { rhs.x, rhs.y, rhs.z, };
+	Vector3 resultVector = Add(Cross(q, r),Add(Multiply(rhs.w, q),Multiply(lhs.w, r)));
+
+	result.x = resultVector.x;
+	result.y = resultVector.y;
+	result.z = resultVector.z;
+	result.w = lhs.w * rhs.w - Dot(q, r);
+
+	return result;
+}
 
 Quaternion IdentityQuaternion()
 {
@@ -819,9 +819,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::ScreenPrintf(20, 40, "%f,%f,%f,%f : Conjugate", conj.x,conj.y,conj.z,conj.w);
 		Novice::ScreenPrintf(20, 60, "%f,%f,%f,%f : Inverse", inv.x,inv.y,inv.z,inv.w);
 		Novice::ScreenPrintf(20, 80, "%f,%f,%f,%f : Normalize",normal.z,normal.y,normal.z,normal.w);
-		Novice::ScreenPrintf(20, 100, "%f,%f,%f,%f : Multiply(q1, q2)");
-		Novice::ScreenPrintf(20, 120, "%f,%f,%f,%f : Multiply(q2, q1)");
-		Novice::ScreenPrintf(20, 140, "%f : Norm");
+		Novice::ScreenPrintf(20, 100, "%f,%f,%f,%f : Multiply(q1, q2)",mul1.x,mul1.y,mul1.z,mul1.w);
+		Novice::ScreenPrintf(20, 120, "%f,%f,%f,%f : Multiply(q2, q1)",mul2.x,mul2.y,mul2.z,mul2);
+		Novice::ScreenPrintf(20, 140, "%f : Norm",norm);
 
 
 		///
