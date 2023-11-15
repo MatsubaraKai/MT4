@@ -15,13 +15,11 @@ static const int kColumnWidth = 80;
 
 
 struct Quaternion final {
-	//float x;
-	//float y;
-	//float z;
-	Vector3 v;
+	float x;
+	float y;
+	float z;
 	float w;
 };
-
 
 Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {
 
@@ -643,7 +641,7 @@ Vector3 Normalize(const Vector3& v) {
 
 Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to) {
 	Vector3 normal = Normalize(Cross(from, to));
-
+	
 	Vector3 minusTo = Multiply(-1.0f, to);
 	Matrix4x4 result = MakeIdentity4x4();
 	if ((from.x == minusTo.x &&
@@ -674,59 +672,107 @@ Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to) {
 	return result;
 }
 
-Vector3 Slerp(const Vector3& v1, const Vector3& v2, float t)
+//Quaternion GetInstance(Quaternion instance)
+//{
+//	static Quaternion instance;
+//	return instance;
+//}
+//Vector3Calc GetInstance(Vector3 instance) {
+//	static Vector3Calc instance;
+//	return instance;
+//}
+//Quaternion Multiply(const Quaternion& lhs, const Quaternion& rhs)
+//{
+//
+//	Quaternion result = {};
+//	Vector3Calc*v3Calc = Vector3Calc::GetInstance();
+//
+//	Vector3 q = { lhs.x, lhs.y, lhs.z, };
+//	Vector3 r = { rhs.x, rhs.y, rhs.z, };
+//	Vector3 resultVector = v3Calc->Add(v3Calc->Cross(q, r), v3Calc->Add(v3Calc->Multiply(rhs.w, q), v3Calc->Multiply(lhs.w, r)));
+//
+//	result.x = resultVector.x;
+//	result.y = resultVector.y;
+//	result.z = resultVector.z;
+//	result.w = lhs.w * rhs.w - v3Calc->Dot(q, r);
+//
+//	return result;
+//}
+
+Quaternion IdentityQuaternion()
 {
-	Vector3 a = Normalize(v1), b = Normalize(v2);
-	float s = (1.0f - t) * Length(a) + t * Length(b);
-	Vector3 e1, e2;
-	e1 = float(1.0f / Length(a)) * a;
-	e2 = float(1.0f / Length(b)) * b;
+	Quaternion result = { 0.0f,0.0f,0.0f,1.0f };
+	return result;
+}
 
-	float dot = std::clamp(Dot(a, b), 0.0f, 1.0f);
-	float theta = std::acos(dot/*/( Length(a)*Length(b))*/);
-	if (theta == 0.0f)
-	{
-		return Lerp(a, b, t);
+Quaternion Conjugate(const Quaternion& quaternion)
+{
+	Quaternion result = { -quaternion.x, -quaternion.y, -quaternion.z, quaternion.w };
+	return result;
+}
+
+float Norm(const Quaternion& quaternion)
+{
+	float result = sqrtf(quaternion.x * quaternion.x +
+		quaternion.y * quaternion.y +
+		quaternion.z * quaternion.z +
+		quaternion.w * quaternion.w);
+
+	return result;
+}
+
+Quaternion Normalize(const Quaternion& quaternion)
+{
+	Quaternion result = {};
+	float norm = Norm(quaternion);
+
+	if (quaternion.x != 0.0) {
+		result.x = quaternion.x / norm;
 	}
-	return s * ((std::sinf((1.0f - t) * theta) / std::sinf(theta)) * a + (std::sinf(t * theta) / std::sinf(theta)) * b);
-}
+	else {
+		result.x = 0.0f;
+	}
 
-Quaternion Multiply(const Quaternion& q, const Quaternion& r) {
-	Quaternion result;
-	result.w = q.w * r.w - Dot(q.v, r.v);
-	result.v = Cross(q.v, r.v) + r.w * q.v + q.w * r.v;
+	if (quaternion.y != 0.0) {
+		result.y = quaternion.y / norm;
+	}
+	else {
+		result.y = 0.0f;
+	}
+
+	if (quaternion.z != 0.0) {
+		result.z = quaternion.z / norm;
+	}
+	else {
+		result.z = 0.0f;
+	}
+
+	if (quaternion.w != 0.0) {
+		result.w = quaternion.w / norm;
+	}
+	else {
+		result.w = 0.0f;
+	}
+
 	return result;
+
 }
 
-Quaternion IdentityQuaternion() {
-	return Quaternion{ 1.0f,0,0,0 };
-}
+Quaternion Inverse(const Quaternion& quaternion)
+{
 
-Quaternion Conjugate(const Quaternion& q) {
-	return Quaternion{ (-1.0f * q.v),q.w };
-}
+	Quaternion result = {};
+	Quaternion conjugate = Conjugate(quaternion);
 
-float Norm(const Quaternion& q) {
-	return std::sqrtf(q.w * q.w + q.v.x * q.v.x + q.v.y * q.v.y + q.v.z * q.v.z);
-}
+	float norm = Norm(quaternion);
 
-Quaternion Normalize(const Quaternion& q) {
-	Quaternion result = q;
-	float norm = Norm(q);
-	result.w /= norm;
-	result.v.x /= norm;
-	result.v.y /= norm;
-	result.v.z /= norm;
-	return result;
-}
+	if (norm != 0.0f) {
+		result.x = conjugate.x / (norm * norm);
+		result.y = conjugate.y / (norm * norm);
+		result.z = conjugate.z / (norm * norm);
+		result.w = conjugate.w / (norm * norm);
+	}
 
-Quaternion Inverse(const Quaternion& q) {
-	Quaternion result = Conjugate(q);
-	float length = Norm(q) * Norm(q);
-	result.w /= length;
-	result.v.x /= length;
-	result.v.y /= length;
-	result.v.z /= length;
 	return result;
 }
 // Windowsアプリでのエントリーポイント(main関数)
@@ -745,9 +791,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Quaternion conj = Conjugate(q1);
 	Quaternion inv = Inverse(q1);
 	Quaternion normal = Normalize(q1);
-	Quaternion mul1 = Multiply(q1, q2);
-	Quaternion mul2 = Multiply(q2, q1);
-	float norm = Norm(q1);
+	//Quaternion mul1 = Multiply(q1, q2);
+	//Quaternion mul2 = Multiply(q2, q1);
+	//float norm = Norm(q1);
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -769,6 +815,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
+		Novice::ScreenPrintf(20, 20, "%f,%f,%f,%f :Identity", identity.x,identity.y,identity.z,identity.w);
+		Novice::ScreenPrintf(20, 40, "%f,%f,%f,%f : Conjugate", conj.x,conj.y,conj.z,conj.w);
+		Novice::ScreenPrintf(20, 60, "%f,%f,%f,%f : Inverse", inv.x,inv.y,inv.z,inv.w);
+		Novice::ScreenPrintf(20, 80, "%f,%f,%f,%f : Normalize",normal.z,normal.y,normal.z,normal.w);
+		Novice::ScreenPrintf(20, 100, "%f,%f,%f,%f : Multiply(q1, q2)");
+		Novice::ScreenPrintf(20, 120, "%f,%f,%f,%f : Multiply(q2, q1)");
+		Novice::ScreenPrintf(20, 140, "%f : Norm");
+
 
 		///
 		/// ↑描画処理ここまで
