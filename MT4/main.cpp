@@ -5,10 +5,17 @@
 #include "Matrix4x4.h"
 #include "Vector3.h"
 #include <math.h>
-const char kWindowTitle[] = "LE2B_18_マツバラカイ_MT4_01_02";
+const char kWindowTitle[] = "LE2B_18_マツバラカイ_MT4_01_04";
 
 static const int kRowHeight = 20;
 static const int kColumnWidth = 80;
+
+struct Quaternion final {
+	float x;
+	float y;
+	float z;
+	float w;
+};
 
 Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {
 
@@ -357,6 +364,19 @@ Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to) {
 	return result;
 }
 
+void MakeRotateAxisAngleQuaternion(){
+
+}
+
+void RotateVectr() {
+
+}
+
+void Transform() {
+
+
+}
+
 void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label)
 {
 	for (int row = 0; row < 4; ++row)
@@ -380,6 +400,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 
+	Quaternion rotation = MakeRotateAxisAngleQuaternion(
+		Normalize(Vector3{ 1.0f,0.4f,-0.2f }), 0.45f);
+	Vector3 pointY = { 2.1f,-0.9f,1.3f };
+	Matrix4x4 rotateMatrix = MakeRotateMatrix(rotation);
+	Vector3 rotateByQuaternion = RotateVectr(pointY, rotation);
+	Vector3 rotateByMatrix = Transform(pointY, rotateMatrix);
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -390,7 +417,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::GetHitKeyStateAll(keys);
 
 		MatrixScreenPrintf(0, 0, rotateMatrix0, "rotateMatrix0");
-		
+		MatrixScreenPrintf(0, kRowHeight * 5, rotateMatrix1, "rotateMatrix1");
+		MatrixScreenPrintf(0, kRowHeight * 10, rotateMatrix2, "rotateMatrix2");
 
 
 		// フレームの終了
