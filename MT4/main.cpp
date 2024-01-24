@@ -11,7 +11,7 @@ static const int kColumnWidth = 60;
 static const int kWindowWidth = 1280;
 static const int kWindowHeght = 720;
 
-const char kWindowTitle[] = "LE2B_マツバラ_カイ";
+const char kWindowTitle[] = "LE2B_18_マツバラ_カイ";
 
 struct Quaternion {
 	float x;
